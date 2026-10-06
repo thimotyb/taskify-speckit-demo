@@ -72,9 +72,18 @@ picker, project list, board, task detail dialog, create/edit dialogs)
 | III. Microservices | Bounded context per service, own data store, versioned contracts, contract tests, no implicit trust | PASS | PASS: 2 services plus gateway, `/v1`-versioned OpenAPI contracts in `contracts/`, WireMock contract tests, internal calls re-validated |
 | IV. Full Documentation | Doc comments on all public code, README per service, docs updated with code | PASS | PASS: Javadoc/TSDoc required, springdoc OpenAPI served per service, README per service listed in structure |
 
-Note 1: with no login, "authN on every endpoint" is satisfied by requiring `X-User-Id` that matches a
-seeded user, and by documenting that this is identification only. Real authentication is deferred
-to a later phase; the gateway is the single place where it will be added.
+Note 1: the spec defers authentication (no login). This is covered by the **Early-Phase
+Identification Exception** in constitution v1.1.0 Principle I, not by reinterpreting the rule. Its
+conditions are met as follows:
+
+| Condition | How the plan meets it |
+|---|---|
+| Spec defers authentication, records risk acceptance | spec.md Assumptions and Security Considerations |
+| Server validates identity on every request, fails closed | `X-User-Id` must match a seeded user, otherwise 401 (FR-017; research R6) |
+| Service-to-service calls stay authenticated | `X-Service-Token` on `/internal/**`; `/internal/**` not routed by the gateway |
+| Only sample or non-sensitive data; not exposed to untrusted users | Seed data only; local and Compose use on a trusted network |
+| Identity handling concentrated in one place | `UserIdentityFilter` per service and the gateway are the only places that read `X-User-Id` |
+| Plan tracks replacement and sunset | See Deferred Work below |
 
 ## Project Structure
 
@@ -144,6 +153,15 @@ services map to the two bounded contexts in the spec: projects (with the fixed u
 tasks (with comments). A gateway gives the browser a single origin and a single place for CORS,
 headers, and future authentication. No shared library module is used so services stay independently
 deployable. A notification service can be added later as a third service without changing these two.
+
+## Deferred Work
+
+- **Replace identification with authentication.** Required before the first release to real users or
+  any untrusted network, and the exception ends then at the latest (constitution Principle I).
+  Approach: add authentication at the gateway (for example, token-based login issuing a signed user
+  token), have `UserIdentityFilter` in each service read the verified identity instead of the raw
+  `X-User-Id` header, and add authorization rules per role if the spec introduces them. Tracked as the
+  first item of the next feature after this one; it must not ship to real users before it is done.
 
 ## Complexity Tracking
 

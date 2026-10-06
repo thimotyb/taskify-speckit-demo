@@ -134,6 +134,7 @@ A user creates a new project with a name and optional description. It appears al
 - **FR-014**: All five users MUST have the same permissions in this phase; the product manager role is a label only.
 - **FR-015**: System MUST show each task's assignee and comment count on the board card.
 - **FR-016**: System MUST record the acting user for every create, edit, assign, move, and comment action.
+- **FR-017**: System MUST reject every request that does not identify one of the five predefined users, with a clear message, and MUST NOT return or change any data for such a request.
 
 ### Key Entities
 
@@ -154,6 +155,29 @@ A user creates a new project with a name and optional description. It appears al
 - **SC-006**: 100% of submitted invalid inputs (empty, over-length, or markup-containing) are rejected or neutralized without errors visible to the user and without executing any submitted content.
 - **SC-007**: The board for a project with 100 tasks loads in under 3 seconds.
 - **SC-008**: In a usability check, at least 90% of the five team members complete all primary tasks (select user, open board, create task, move task, comment) on their first attempt.
+
+## Security Considerations
+
+This feature is Security-First. The points below record what needs protecting and what is knowingly
+accepted in this phase.
+
+- **Trust boundaries**: people using Taskify in a browser are untrusted, so everything they submit
+  is checked before it is used (FR-012, FR-017). The parts of Taskify that talk to each other do not
+  trust one another blindly either; each request between them is also verified.
+- **Sensitive data**: project names, task titles and descriptions, comments, and the five user names.
+  This phase holds only sample or non-sensitive data. Taskify collects no passwords, payment details,
+  or personal contact information.
+- **Abuse cases to defend against**: submitting harmful text such as scripts or markup; submitting
+  oversized or malformed input; using the system's internal interfaces directly instead of through the
+  app; flooding the system with changes; guessing identifiers to reach items that do not exist.
+- **Knowingly accepted risk (no login)**: because there is no login, anyone who can reach the app can
+  pretend to be any of the five users, and the recorded "who did it" is only as trustworthy as the
+  user selected. This is allowed by the constitution's Early-Phase Identification Exception on these
+  conditions: the system holds only sample data, is used only by the five predefined users on a
+  trusted network, still rejects unknown or missing users (FR-017), and is replaced by real
+  authentication before any release to real users or an untrusted network.
+- **Visibility by design**: all five users can see and change every project and task (FR-014), so
+  there is no per-user privacy to protect in this phase.
 
 ## Assumptions
 
