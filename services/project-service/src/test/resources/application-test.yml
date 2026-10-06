@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:project-test;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+taskify:
+  service-token: test-service-token-0123456789abcdef0123456789

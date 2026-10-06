@@ -1,0 +1,6 @@
+# Local development profile: API docs and Swagger UI enabled (never in compose/production).
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true

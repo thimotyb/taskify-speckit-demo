@@ -1,0 +1,6 @@
+# Compose/production profile: encrypt the database file at rest (AES). H2 expects the password in
+# the form "<file key> <user password>".
+spring:
+  datasource:
+    url: jdbc:h2:file:${TASKIFY_DATA_DIR:/data}/task-service/task-service;CIPHER=AES;DB_CLOSE_ON_EXIT=FALSE
+    password: "${TASKIFY_DB_FILE_KEY} ${TASKIFY_DB_PASSWORD}"

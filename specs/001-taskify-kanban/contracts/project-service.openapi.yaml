@@ -12,14 +12,15 @@ paths:
     get:
       operationId: listUsers
       summary: List the five predefined users
-      parameters: [{ $ref: '#/components/parameters/ActingUser' }]
+      description: >
+        The only public endpoint: it needs no X-User-Id, because a client must list the users in
+        order to choose an identity. It exposes only names and roles of the five predefined users.
       responses:
         '200':
           description: All users
           content:
             application/json:
               schema: { type: array, items: { $ref: '#/components/schemas/User' } }
-        '401': { $ref: '#/components/responses/Problem' }
   /projects:
     get:
       operationId: listProjects

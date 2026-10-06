@@ -134,7 +134,7 @@ A user creates a new project with a name and optional description. It appears al
 - **FR-014**: All five users MUST have the same permissions in this phase; the product manager role is a label only.
 - **FR-015**: System MUST show each task's assignee and comment count on the board card.
 - **FR-016**: System MUST record the acting user for every create, edit, assign, move, and comment action.
-- **FR-017**: System MUST reject every request that does not identify one of the five predefined users, with a clear message, and MUST NOT return or change any data for such a request.
+- **FR-017**: System MUST reject every request that does not identify one of the five predefined users, with a clear message, and MUST NOT return or change any data for such a request. The only exception is the list of the five predefined users (names and roles), which must be available before anyone is identified so a user can be chosen.
 
 ### Key Entities
 

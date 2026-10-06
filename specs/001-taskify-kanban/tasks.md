@@ -35,17 +35,17 @@ TypeScript symbol gets TSDoc, and each task that adds code also updates the rele
 
 **Purpose**: Repository, build, and tooling skeleton
 
-- [ ] T001 Create the directory skeleton from plan.md: `services/gateway/`, `services/project-service/`, `services/task-service/`, `frontend/`, `docs/`, `config/`
-- [ ] T002 Create the Maven parent `pom.xml` at the repo root: Java 21, Spring Boot 3.3.x BOM, modules `services/gateway`, `services/project-service`, `services/task-service`, Checkstyle plugin bound to `verify`, Surefire/Failsafe
-- [ ] T003 [P] Create `config/checkstyle.xml` enforcing `MissingJavadocType` and `MissingJavadocMethod` on public APIs, and `JavadocMethod` tag checks
-- [ ] T004 [P] Create `PS/pom.xml` with dependencies: spring-boot-starter-web, -validation, -data-jpa, -security, -actuator, flyway-core, `com.h2database:h2` (runtime), springdoc-openapi-starter-webmvc-api, and test dependencies (spring-boot-starter-test, spring-security-test)
-- [ ] T005 [P] Create `TS/pom.xml` with the same dependencies as the project service plus WireMock (test scope) for contract tests
-- [ ] T006 [P] Create `GW/pom.xml` with spring-cloud-starter-gateway, spring-boot-starter-security, spring-boot-starter-actuator, and test dependencies
-- [ ] T007 [P] Initialize `FE/package.json`, `FE/vite.config.ts`, `FE/tsconfig.json` with React 18, TypeScript 5, MUI v6, `@hello-pangea/dnd`, `@tanstack/react-query`, `react-router-dom`, and dev dependencies Vitest, React Testing Library, Playwright
-- [ ] T008 [P] Configure `FE/eslint.config.js` with the `jsdoc` plugin (require TSDoc on exported symbols) and a `no-restricted-syntax` rule banning `dangerouslySetInnerHTML`; add `FE/.prettierrc`
-- [ ] T009 [P] Create root `.gitignore` (target/, node_modules/, data/, `.env`) and `.env.example` listing, without values, `TASKIFY_SERVICE_TOKEN`, `TASKIFY_DB_USER`, `TASKIFY_DB_PASSWORD`, `TASKIFY_DB_FILE_KEY`, `TASKIFY_DATA_DIR`
-- [ ] T010 [P] Create non-root multi-stage Dockerfiles: `PS/Dockerfile`, `TS/Dockerfile`, `GW/Dockerfile`, `FE/Dockerfile`
-- [ ] T011 Create `docker-compose.yml`: gateway, project-service, task-service, frontend; one named data volume per service mounted at `/data/<service>` and only into that service; secrets passed via environment variables from `.env`; internal ports not published except gateway (8080) and frontend (3000)
+- [X] T001 Create the directory skeleton from plan.md: `services/gateway/`, `services/project-service/`, `services/task-service/`, `frontend/`, `docs/`, `config/`
+- [X] T002 Create the Maven parent `pom.xml` at the repo root: Java 21, Spring Boot 3.3.x BOM, modules `services/gateway`, `services/project-service`, `services/task-service`, Checkstyle plugin bound to `verify`, Surefire/Failsafe
+- [X] T003 [P] Create `config/checkstyle.xml` enforcing `MissingJavadocType` and `MissingJavadocMethod` on public APIs, and `JavadocMethod` tag checks
+- [X] T004 [P] Create `PS/pom.xml` with dependencies: spring-boot-starter-web, -validation, -data-jpa, -security, -actuator, flyway-core, `com.h2database:h2` (runtime), springdoc-openapi-starter-webmvc-api, and test dependencies (spring-boot-starter-test, spring-security-test)
+- [X] T005 [P] Create `TS/pom.xml` with the same dependencies as the project service plus WireMock (test scope) for contract tests
+- [X] T006 [P] Create `GW/pom.xml` with spring-cloud-starter-gateway, spring-boot-starter-security (omitted: the reactive gateway has no login to protect, headers and limits are plain filters), spring-boot-starter-actuator, and test dependencies
+- [X] T007 [P] Initialize `FE/package.json`, `FE/vite.config.ts`, `FE/tsconfig.json` with React 18, TypeScript 5, MUI v6, `@hello-pangea/dnd`, `@tanstack/react-query`, `react-router-dom`, and dev dependencies Vitest, React Testing Library, Playwright
+- [X] T008 [P] Configure `FE/eslint.config.js` with the `jsdoc` plugin (require TSDoc on exported symbols) and a `no-restricted-syntax` rule banning `dangerouslySetInnerHTML`; add `FE/.prettierrc`
+- [X] T009 [P] Create root `.gitignore` (target/, node_modules/, data/, `.env`) and `.env.example` listing, without values, `TASKIFY_SERVICE_TOKEN`, `TASKIFY_DB_USER`, `TASKIFY_DB_PASSWORD`, `TASKIFY_DB_FILE_KEY`, `TASKIFY_DATA_DIR`
+- [X] T010 [P] Create non-root multi-stage Dockerfiles: `PS/Dockerfile`, `TS/Dockerfile`, `GW/Dockerfile`, `FE/Dockerfile`
+- [X] T011 Create `docker-compose.yml`: gateway, project-service, task-service, frontend; one named data volume per service mounted at `/data/<service>` and only into that service; secrets passed via environment variables from `.env`; internal ports not published except gateway (8080) and frontend (3000)
 
 ---
 
@@ -57,40 +57,40 @@ TypeScript symbol gets TSDoc, and each task that adds code also updates the rele
 
 ### Persistence and seed data
 
-- [ ] T012 Document fixed seed data in `docs/seed-data.md`: users `00000000-0000-0000-0000-000000000001` to `...005` (Priya Shah, PRODUCT_MANAGER; Marco Rossi, Lena Fischer, Tom Nguyen, Sara Okafor, ENGINEER); projects `10000000-0000-0000-0000-000000000001` to `...003` ("Website Redesign", "Mobile App Launch", "Internal Tooling"); 8 tasks per project (2 in each status) with ids `20000000-0000-0000-0000-0000000000NN`, several assigned, 5 comments in total
-- [ ] T013 [P] Create `PS/src/main/resources/application.yml`: datasource `jdbc:h2:file:${TASKIFY_DATA_DIR}/project-service/project-service;DB_CLOSE_ON_EXIT=FALSE` (plus `CIPHER=AES` in the `compose` and `prod` profiles with file key from `TASKIFY_DB_FILE_KEY`), user and password from environment, `spring.h2.console.enabled=false`, no `AUTO_SERVER`, Flyway enabled, `spring.jackson.deserialization.fail-on-unknown-properties=true`, max request size limit, server port 8081
-- [ ] T014 [P] Create `TS/src/main/resources/application.yml` with the same settings for task-service (file `${TASKIFY_DATA_DIR}/task-service/task-service`), port 8082, and `taskify.project-service.base-url` and `taskify.service-token` properties
-- [ ] T015 [P] Create Flyway migration `PS/src/main/resources/db/migration/V1__schema.sql`: table `users` (id UUID PK, name VARCHAR(100) NOT NULL, role with CHECK in ('PRODUCT_MANAGER','ENGINEER')) and `projects` (id UUID PK, name VARCHAR(100) NOT NULL, description VARCHAR(1000), created_by UUID NOT NULL, created_at TIMESTAMP NOT NULL) with a unique index on `LOWER(name)`
-- [ ] T016 Create Flyway seed migration `PS/src/main/resources/db/migration/V2__seed.sql` inserting the 5 users and 3 projects from `docs/seed-data.md`; the seed runs once because Flyway records applied versions, and applied migrations are never edited
-- [ ] T017 [P] Create Flyway migration `TS/src/main/resources/db/migration/V1__schema.sql`: table `tasks` (id UUID PK, project_id UUID NOT NULL, title VARCHAR(150) NOT NULL, description VARCHAR(2000), status CHECK in ('TODO','IN_PROGRESS','IN_REVIEW','DONE') DEFAULT 'TODO', assignee_id UUID NULL, created_by, created_at, updated_at, updated_by) and `comments` (id UUID PK, task_id UUID NOT NULL FK to tasks, author_id UUID NOT NULL, text VARCHAR(1000) NOT NULL, created_at TIMESTAMP NOT NULL); index on `tasks(project_id, status, created_at)` and `comments(task_id, created_at)`
-- [ ] T018 Create Flyway seed migration `TS/src/main/resources/db/migration/V2__seed.sql` inserting the sample tasks and comments from `docs/seed-data.md`
+- [X] T012 Document fixed seed data in `docs/seed-data.md`: users `00000000-0000-0000-0000-000000000001` to `...005` (Priya Shah, PRODUCT_MANAGER; Marco Rossi, Lena Fischer, Tom Nguyen, Sara Okafor, ENGINEER); projects `10000000-0000-0000-0000-000000000001` to `...003` ("Website Redesign", "Mobile App Launch", "Internal Tooling"); 8 tasks per project (2 in each status) with ids `20000000-0000-0000-0000-0000000000NN`, several assigned, 5 comments in total
+- [X] T013 [P] Create `PS/src/main/resources/application.yml`: datasource `jdbc:h2:file:${TASKIFY_DATA_DIR}/project-service/project-service;DB_CLOSE_ON_EXIT=FALSE` (plus `CIPHER=AES` in the `compose` and `prod` profiles with file key from `TASKIFY_DB_FILE_KEY`), user and password from environment, `spring.h2.console.enabled=false`, no `AUTO_SERVER`, Flyway enabled, `spring.jackson.deserialization.fail-on-unknown-properties=true`, max request size limit, server port 8081
+- [X] T014 [P] Create `TS/src/main/resources/application.yml` with the same settings for task-service (file `${TASKIFY_DATA_DIR}/task-service/task-service`), port 8082, and `taskify.project-service.base-url` and `taskify.service-token` properties
+- [X] T015 [P] Create Flyway migration `PS/src/main/resources/db/migration/V1__schema.sql`: table `users` (id UUID PK, name VARCHAR(100) NOT NULL, role with CHECK in ('PRODUCT_MANAGER','ENGINEER')) and `projects` (id UUID PK, name VARCHAR(100) NOT NULL, description VARCHAR(1000), created_by UUID NOT NULL, created_at TIMESTAMP NOT NULL) with a unique index on `LOWER(name)`
+- [X] T016 Create Flyway seed migration `PS/src/main/resources/db/migration/V2__seed.sql` inserting the 5 users and 3 projects from `docs/seed-data.md`; the seed runs once because Flyway records applied versions, and applied migrations are never edited
+- [X] T017 [P] Create Flyway migration `TS/src/main/resources/db/migration/V1__schema.sql`: table `tasks` (id UUID PK, project_id UUID NOT NULL, title VARCHAR(150) NOT NULL, description VARCHAR(2000), status CHECK in ('TODO','IN_PROGRESS','IN_REVIEW','DONE') DEFAULT 'TODO', assignee_id UUID NULL, created_by, created_at, updated_at, updated_by) and `comments` (id UUID PK, task_id UUID NOT NULL FK to tasks, author_id UUID NOT NULL, text VARCHAR(1000) NOT NULL, created_at TIMESTAMP NOT NULL); index on `tasks(project_id, status, created_at)` and `comments(task_id, created_at)`
+- [X] T018 Create Flyway seed migration `TS/src/main/resources/db/migration/V2__seed.sql` inserting the sample tasks and comments from `docs/seed-data.md`
 
 ### Security, errors, and logging (both services)
 
-- [ ] T019 [P] Implement `ProblemDetailsAdvice` in `PS/src/main/java/com/taskify/project/config/ProblemDetailsAdvice.java`: RFC 9457 responses for validation errors (400 with `errors[{field,message}]`), malformed/unknown-property JSON (400), not found (404), conflict (409), unauthorized (401), generic failure (500 with no stack trace or internals); Javadoc on every handler
-- [ ] T020 [P] Implement `ProblemDetailsAdvice` in `TS/src/main/java/com/taskify/task/config/ProblemDetailsAdvice.java` with the same behavior plus 503 for an unreachable project-service
-- [ ] T021 Implement `ServiceTokenFilter` in `PS/src/main/java/com/taskify/project/config/ServiceTokenFilter.java` protecting `/internal/**`: constant-time comparison (`MessageDigest.isEqual`) of `X-Service-Token` against `taskify.service-token`; 401 on missing or wrong token; never log the token
-- [ ] T022 [P] Create `User` entity (role enum `PRODUCT_MANAGER`/`ENGINEER`; name 1-100 chars) and `UserRepository` in `PS/src/main/java/com/taskify/project/domain/` (moved from US1: required by `UserIdentityFilter`)
-- [ ] T023 Implement `UserIdentityFilter` in `PS/src/main/java/com/taskify/project/config/UserIdentityFilter.java` for `/api/**`: require `X-User-Id` as a UUID matching a seeded user, otherwise 401 Problem Details; place the acting user id in a request-scoped holder (`ActingUser.java`)
-- [ ] T024 Implement `SecurityConfig` in `PS/src/main/java/com/taskify/project/config/SecurityConfig.java`: stateless, CSRF disabled for the header-based API, security headers, filters registered in order, springdoc paths enabled only in the `local` profile
-- [ ] T025 Implement `ProjectServiceClient` in `TS/src/main/java/com/taskify/task/client/ProjectServiceClient.java`: calls `GET /internal/projects/{id}` and `GET /internal/users/{id}` with `X-Service-Token`, 2 s connect and read timeouts, no caching of user or project checks (every request is verified, so an outage always fails closed), maps unreachable/5xx to a fail-closed `UpstreamUnavailableException` (HTTP 503) and 404 to not-found; Javadoc
-- [ ] T026 Implement `UserIdentityFilter` and `ActingUser` in `TS/src/main/java/com/taskify/task/config/` for `/api/**`: require `X-User-Id` UUID, verify it via `ProjectServiceClient`, otherwise 401
-- [ ] T027 Implement `SecurityConfig` in `TS/src/main/java/com/taskify/task/config/SecurityConfig.java` mirroring the project service (stateless, headers, no console)
-- [ ] T028 [P] Configure logging in `PS/src/main/resources/logback-spring.xml` and `TS/src/main/resources/logback-spring.xml`: structured fields, never log request bodies or the service token; log validation rejections, unknown-user attempts, and bad service tokens at WARN
+- [X] T019 [P] Implement `ProblemDetailsAdvice` in `PS/src/main/java/com/taskify/project/config/ProblemDetailsAdvice.java`: RFC 9457 responses for validation errors (400 with `errors[{field,message}]`), malformed/unknown-property JSON (400), not found (404), conflict (409), unauthorized (401), generic failure (500 with no stack trace or internals); Javadoc on every handler
+- [X] T020 [P] Implement `ProblemDetailsAdvice` in `TS/src/main/java/com/taskify/task/config/ProblemDetailsAdvice.java` with the same behavior plus 503 for an unreachable project-service
+- [X] T021 Implement `ServiceTokenFilter` in `PS/src/main/java/com/taskify/project/config/ServiceTokenFilter.java` protecting `/internal/**`: constant-time comparison (`MessageDigest.isEqual`) of `X-Service-Token` against `taskify.service-token`; 401 on missing or wrong token; never log the token
+- [X] T022 [P] Create `User` entity (role enum `PRODUCT_MANAGER`/`ENGINEER`; name 1-100 chars) and `UserRepository` in `PS/src/main/java/com/taskify/project/domain/` (moved from US1: required by `UserIdentityFilter`)
+- [X] T023 Implement `UserIdentityFilter` in `PS/src/main/java/com/taskify/project/config/UserIdentityFilter.java` for `/api/**`: require `X-User-Id` as a UUID matching a seeded user, otherwise 401 Problem Details; place the acting user id in a request-scoped holder (`ActingUser.java`)
+- [X] T024 Implement `SecurityConfig` in `PS/src/main/java/com/taskify/project/config/SecurityConfig.java`: stateless, CSRF disabled for the header-based API, security headers, filters registered in order, springdoc paths enabled only in the `local` profile
+- [X] T025 Implement `ProjectServiceClient` in `TS/src/main/java/com/taskify/task/client/ProjectServiceClient.java`: calls `GET /internal/projects/{id}` and `GET /internal/users/{id}` with `X-Service-Token`, 2 s connect and read timeouts, no caching of user or project checks (every request is verified, so an outage always fails closed), maps unreachable/5xx to a fail-closed `UpstreamUnavailableException` (HTTP 503) and 404 to not-found; Javadoc
+- [X] T026 Implement `UserIdentityFilter` and `ActingUser` in `TS/src/main/java/com/taskify/task/config/` for `/api/**`: require `X-User-Id` UUID, verify it via `ProjectServiceClient`, otherwise 401
+- [X] T027 Implement `SecurityConfig` in `TS/src/main/java/com/taskify/task/config/SecurityConfig.java` mirroring the project service (stateless, headers, no console)
+- [X] T028 [P] Configure logging in `PS/src/main/resources/logback-spring.xml` and `TS/src/main/resources/logback-spring.xml`: structured fields, never log request bodies or the service token; log validation rejections, unknown-user attempts, and bad service tokens at WARN
 
 ### Gateway
 
-- [ ] T029 Implement gateway routes in `GW/src/main/java/com/taskify/gateway/config/RouteConfig.java`: `/api/v1/users/**` and `/api/v1/projects` (exact and `/{id}`) to project-service; `/api/v1/projects/{id}/tasks` and `/api/v1/tasks/**` to task-service; explicit deny (404) for `/internal/**`
-- [ ] T030 [P] Implement `SecurityHeadersFilter` in `GW/src/main/java/com/taskify/gateway/config/SecurityHeadersFilter.java` adding CSP, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, and `CorsConfig.java` with a strict allow-list from configuration
-- [ ] T031 [P] Implement `WriteRateLimitFilter` in `GW/src/main/java/com/taskify/gateway/config/WriteRateLimitFilter.java`: per-`X-User-Id` limit on POST/PUT/PATCH (default 60 requests per minute, configurable), 429 Problem Details when exceeded
-- [ ] T032 [P] Create `GW/src/main/resources/application.yml` (port 8080, upstream URLs, request size limit, allowed origin) and `GW/README.md`
+- [X] T029 Implement gateway routes in `GW/src/main/java/com/taskify/gateway/config/RouteConfig.java`: `/api/v1/users/**` and `/api/v1/projects` (exact and `/{id}`) to project-service; `/api/v1/projects/{id}/tasks` and `/api/v1/tasks/**` to task-service; explicit deny (404) for `/internal/**`
+- [X] T030 [P] Implement `SecurityHeadersFilter` in `GW/src/main/java/com/taskify/gateway/config/SecurityHeadersFilter.java` adding CSP, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, and `CorsConfig.java` with a strict allow-list from configuration
+- [X] T031 [P] Implement `WriteRateLimitFilter` in `GW/src/main/java/com/taskify/gateway/config/WriteRateLimitFilter.java`: per-`X-User-Id` limit on POST/PUT/PATCH (default 60 requests per minute, configurable), 429 Problem Details when exceeded
+- [X] T032 [P] Create `GW/src/main/resources/application.yml` (port 8080, upstream URLs, request size limit, allowed origin) and `GW/README.md`
 
 ### Frontend shell
 
-- [ ] T033 [P] Implement the API client in `FE/src/services/apiClient.ts`: base `/api/v1`, injects `X-User-Id` from the acting-user context, parses Problem Details into a typed `ApiError` with safe field messages; TSDoc
-- [ ] T034 [P] Implement `FE/src/state/ActingUserContext.tsx`: holds the selected user id, persists it in `localStorage` (wrapped in try/catch), exposes `useActingUser`
-- [ ] T035 [P] Create `FE/src/components/StateViews.tsx` (loading, empty, error, not-found views) and `FE/src/theme.ts` (MUI theme)
-- [ ] T036 Create `FE/src/main.tsx` and `FE/src/App.tsx` with `QueryClientProvider` (refetch on window focus enabled, no polling), router routes `/`, `/projects`, `/projects/:projectId`, and a guard that redirects to the user picker when no user is selected
+- [X] T033 [P] Implement the API client in `FE/src/services/apiClient.ts`: base `/api/v1`, injects `X-User-Id` from the acting-user context, parses Problem Details into a typed `ApiError` with safe field messages; TSDoc
+- [X] T034 [P] Implement `FE/src/state/ActingUserContext.tsx`: holds the selected user id, persists it in `localStorage` (wrapped in try/catch), exposes `useActingUser`
+- [X] T035 [P] Create `FE/src/components/StateViews.tsx` (loading, empty, error, not-found views) and `FE/src/theme.ts` (MUI theme)
+- [X] T036 Create `FE/src/main.tsx` and `FE/src/App.tsx` with `QueryClientProvider` (refetch on window focus enabled, no polling), router routes `/`, `/projects`, `/projects/:projectId`, and a guard that redirects to the user picker when no user is selected
 
 **Checkpoint**: Foundation ready; user stories can now begin
 
@@ -104,27 +104,27 @@ TypeScript symbol gets TSDoc, and each task that adds code also updates the rele
 
 ### Tests for User Story 1 ⚠️ (write first, confirm they fail)
 
-- [ ] T037 [P] [US1] Controller tests for `GET /api/v1/users`, `GET /api/v1/projects`, `GET /api/v1/projects/{projectId}` (200, 401 without or with unknown `X-User-Id`, 404 unknown project) in `PS/src/test/java/com/taskify/project/api/ReadEndpointsTest.java`, asserting exactly 5 users (1 PRODUCT_MANAGER, 4 ENGINEER) and 3 seeded projects
-- [ ] T038 [P] [US1] Controller tests for the internal endpoints `GET /internal/projects/{projectId}` and `GET /internal/users/{userId}` (200, 404, 401 without or with wrong `X-Service-Token`) in `PS/src/test/java/com/taskify/project/api/InternalEndpointsTest.java`
-- [ ] T039 [P] [US1] Controller test for `GET /api/v1/projects/{projectId}/tasks` (200 with `commentCount`, ordered by `createdAt` ascending within status, 404 unknown project, 401 unknown user) in `TS/src/test/java/com/taskify/task/api/ListTasksTest.java`
-- [ ] T040 [P] [US1] WireMock contract test for `ProjectServiceClient` (project exists, project 404, user exists, upstream 500/timeout fails closed with 503, token header sent) in `TS/src/test/java/com/taskify/task/client/ProjectServiceClientContractTest.java`
-- [ ] T041 [P] [US1] Component tests for `UserPicker`, `ProjectList`, `Board` rendering four columns in order with empty-state message in `FE/tests/unit/board.test.tsx`
-- [ ] T042 [P] [US1] Playwright scenario for quickstart scenario 1 (5 users, 3 projects, four columns, selection survives reload) in `FE/tests/e2e/us1-view-board.spec.ts`
+- [X] T037 [P] [US1] Controller tests for `GET /api/v1/users`, `GET /api/v1/projects`, `GET /api/v1/projects/{projectId}` (200, 401 without or with unknown `X-User-Id`, 404 unknown project) in `PS/src/test/java/com/taskify/project/api/ReadEndpointsTest.java`, asserting exactly 5 users (1 PRODUCT_MANAGER, 4 ENGINEER) and 3 seeded projects
+- [X] T038 [P] [US1] Controller tests for the internal endpoints `GET /internal/projects/{projectId}` and `GET /internal/users/{userId}` (200, 404, 401 without or with wrong `X-Service-Token`) in `PS/src/test/java/com/taskify/project/api/InternalEndpointsTest.java`
+- [X] T039 [P] [US1] Controller test for `GET /api/v1/projects/{projectId}/tasks` (200 with `commentCount`, ordered by `createdAt` ascending within status, 404 unknown project, 401 unknown user) in `TS/src/test/java/com/taskify/task/api/ListTasksTest.java`
+- [X] T040 [P] [US1] WireMock contract test for `ProjectServiceClient` (project exists, project 404, user exists, upstream 500/timeout fails closed with 503, token header sent) in `TS/src/test/java/com/taskify/task/client/ProjectServiceClientContractTest.java`
+- [X] T041 [P] [US1] Component tests for `UserPicker`, `ProjectList`, `Board` rendering four columns in order with empty-state message in `FE/tests/unit/board.test.tsx`
+- [X] T042 [P] [US1] Playwright scenario for quickstart scenario 1 (5 users, 3 projects, four columns, selection survives reload) in `FE/tests/e2e/us1-view-board.spec.ts`
 
 ### Implementation for User Story 1
 
-- [ ] T043 [P] [US1] Create `Project` entity (name required, 1-100 chars after trim, unique ignoring case; description optional up to 1,000 chars; createdBy, createdAt) and `ProjectRepository` in `PS/src/main/java/com/taskify/project/domain/`
-- [ ] T044 [US1] Implement `UserService` and `ProjectService` (list, get, not-found handling) in `PS/src/main/java/com/taskify/project/service/`
-- [ ] T045 [US1] Implement `UserController`, `ProjectController` (GET endpoints), `InternalController` (`/internal/projects/{id}`, `/internal/users/{id}`), and DTOs `UserResponse`, `ProjectResponse` in `PS/src/main/java/com/taskify/project/api/` per `contracts/project-service.openapi.yaml`
-- [ ] T046 [P] [US1] Create `TaskStatus` enum (`TODO`, `IN_PROGRESS`, `IN_REVIEW`, `DONE`), `Task` entity (title required 1-150 chars after trim; description optional up to 2,000 chars; status default `TODO`; assigneeId optional, at most one; createdBy; createdAt; updatedAt; updatedBy) and `TaskRepository` in `TS/src/main/java/com/taskify/task/domain/`
-- [ ] T047 [P] [US1] Create `Comment` entity (text required 1-1,000 chars after trim; authorId; createdAt) and `CommentRepository` with a count-by-task query in `TS/src/main/java/com/taskify/task/domain/`
-- [ ] T048 [US1] Implement `TaskService.listByProject` (verifies the project via `ProjectServiceClient`, returns tasks with comment counts ordered by `createdAt`) in `TS/src/main/java/com/taskify/task/service/TaskService.java`
-- [ ] T049 [US1] Implement `TaskController` `GET /api/v1/projects/{projectId}/tasks` and `TaskResponse` DTO in `TS/src/main/java/com/taskify/task/api/` per `contracts/task-service.openapi.yaml`
-- [ ] T050 [P] [US1] Create typed API functions and models for users, projects, and tasks in `FE/src/services/usersApi.ts`, `FE/src/services/projectsApi.ts`, `FE/src/services/tasksApi.ts`, and types in `FE/src/services/types.ts`
-- [ ] T051 [P] [US1] Implement `FE/src/pages/UserPicker.tsx` (five users with role labels, no credentials, selection stored in context and survives reload)
-- [ ] T052 [P] [US1] Implement `FE/src/pages/ProjectList.tsx` (list of projects, link to board, user switcher in the app bar)
-- [ ] T053 [US1] Implement `FE/src/components/Column.tsx`, `FE/src/components/TaskCard.tsx` (title, assignee name, comment count per FR-015; text rendered as plain text), and `FE/src/pages/ProjectBoard.tsx` (four columns in order, empty-state message, scrollable columns, manual refresh button, not-found view)
-- [ ] T054 [US1] Update `PS/README.md` and `TS/README.md` and `FE/README.md` with purpose, configuration, run and test instructions, and the endpoints delivered in this story
+- [X] T043 [P] [US1] Create `Project` entity (name required, 1-100 chars after trim, unique ignoring case; description optional up to 1,000 chars; createdBy, createdAt) and `ProjectRepository` in `PS/src/main/java/com/taskify/project/domain/`
+- [X] T044 [US1] Implement `UserService` and `ProjectService` (list, get, not-found handling) in `PS/src/main/java/com/taskify/project/service/`
+- [X] T045 [US1] Implement `UserController`, `ProjectController` (GET endpoints), `InternalController` (`/internal/projects/{id}`, `/internal/users/{id}`), and DTOs `UserResponse`, `ProjectResponse` in `PS/src/main/java/com/taskify/project/api/` per `contracts/project-service.openapi.yaml`
+- [X] T046 [P] [US1] Create `TaskStatus` enum (`TODO`, `IN_PROGRESS`, `IN_REVIEW`, `DONE`), `Task` entity (title required 1-150 chars after trim; description optional up to 2,000 chars; status default `TODO`; assigneeId optional, at most one; createdBy; createdAt; updatedAt; updatedBy) and `TaskRepository` in `TS/src/main/java/com/taskify/task/domain/`
+- [X] T047 [P] [US1] Create `Comment` entity (text required 1-1,000 chars after trim; authorId; createdAt) and `CommentRepository` with a count-by-task query in `TS/src/main/java/com/taskify/task/domain/`
+- [X] T048 [US1] Implement `TaskService.listByProject` (verifies the project via `ProjectServiceClient`, returns tasks with comment counts ordered by `createdAt`) in `TS/src/main/java/com/taskify/task/service/TaskService.java`
+- [X] T049 [US1] Implement `TaskController` `GET /api/v1/projects/{projectId}/tasks` and `TaskResponse` DTO in `TS/src/main/java/com/taskify/task/api/` per `contracts/task-service.openapi.yaml`
+- [X] T050 [P] [US1] Create typed API functions and models for users, projects, and tasks in `FE/src/services/usersApi.ts`, `FE/src/services/projectsApi.ts`, `FE/src/services/tasksApi.ts`, and types in `FE/src/services/types.ts`
+- [X] T051 [P] [US1] Implement `FE/src/pages/UserPicker.tsx` (five users with role labels, no credentials, selection stored in context and survives reload)
+- [X] T052 [P] [US1] Implement `FE/src/pages/ProjectList.tsx` (list of projects, link to board, user switcher in the app bar)
+- [X] T053 [US1] Implement `FE/src/components/Column.tsx`, `FE/src/components/TaskCard.tsx` (title, assignee name, comment count per FR-015; text rendered as plain text), and `FE/src/pages/ProjectBoard.tsx` (four columns in order, empty-state message, scrollable columns, manual refresh button, not-found view)
+- [X] T054 [US1] Update `PS/README.md` and `TS/README.md` and `FE/README.md` with purpose, configuration, run and test instructions, and the endpoints delivered in this story
 
 **Checkpoint**: User Story 1 is fully functional and testable on its own (MVP)
 

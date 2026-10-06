@@ -1,0 +1,57 @@
+# Project service configuration. Secrets come from environment variables, never from this file.
+server:
+  port: 8082
+  max-http-request-header-size: 16KB
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+
+spring:
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  application:
+    name: task-service
+  datasource:
+    # H2 in file mode: data survives restarts. No AUTO_SERVER (it would open a TCP port).
+    url: jdbc:h2:file:${TASKIFY_DATA_DIR:./data}/task-service/task-service;DB_CLOSE_ON_EXIT=FALSE
+    username: ${TASKIFY_DB_USER:taskify}
+    password: ${TASKIFY_DB_PASSWORD:}
+  h2:
+    console:
+      enabled: false
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+  servlet:
+    multipart:
+      enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+taskify:
+  # Shared secret for /internal/** calls. Empty means every internal call is rejected (fail closed).
+  service-token: ${TASKIFY_SERVICE_TOKEN:}
+  project-service:
+    base-url: ${TASKIFY_PROJECT_SERVICE_URL:http://localhost:8081}
+    connect-timeout: 2s
+    read-timeout: 2s

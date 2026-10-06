@@ -1,0 +1,31 @@
+# Gateway configuration. No secrets live here.
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/api/**]':
+            allowed-origins: ${TASKIFY_ALLOWED_ORIGIN:http://localhost:3000}
+            allowed-methods: GET,POST,PUT,PATCH,OPTIONS
+            allowed-headers: X-User-Id,Content-Type
+            max-age: 3600
+      default-filters:
+        - RemoveResponseHeader=Server
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+taskify:
+  gateway:
+    project-service-url: ${TASKIFY_PROJECT_SERVICE_URL:http://localhost:8081}
+    task-service-url: ${TASKIFY_TASK_SERVICE_URL:http://localhost:8082}
+    max-request-bytes: 65536
+    write-rate-limit-per-minute: 60

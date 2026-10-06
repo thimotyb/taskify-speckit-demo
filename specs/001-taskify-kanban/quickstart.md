@@ -57,7 +57,7 @@ cd frontend && npm run e2e   # Playwright, runs the scenarios below against a ru
 | 7 | US4 | As user A comment on a task; switch to user B and open the task | Comment shows author and time, oldest first; the card's comment count increased |
 | 8 | US5 | Create a project, then repeat with a duplicate name | New empty board with 4 columns; duplicate rejected |
 | 9 | Security | Submit `<script>alert(1)</script>` as a title, comment, and project name | Stored and shown as plain text; nothing executes |
-| 10 | Security | Call an API without `X-User-Id`, then with an unknown id; call an `/internal/**` path directly on a service without the token | 401 in each case, with a safe error body; `/internal/**` is not reachable through the gateway |
+| 10 | Security | Call `/api/v1/projects` without `X-User-Id`, then with an unknown id (only `GET /api/v1/users` is public); call an `/internal/**` path directly on a service without the token | 401 in each case, with a safe error body; `/internal/**` is not reachable through the gateway |
 | 11 | Resilience | Stop project-service; try to open a board, create a task, and drag a card | Each fails closed with a clear error (503). The dragged card returns to its original column and the message "The task cannot be moved right now. Please try again later." is shown. After project-service restarts, the same actions succeed |
 | 12 | Restart | Create a project, a task, and a comment; restart every service (`docker compose restart`); reload | All three remain, assignments and column positions unchanged (SC-005) |
 | 13 | First-start seeding | After scenario 12, count projects, tasks, and users | Counts are unchanged: 5 users, no duplicated sample projects or tasks (FR-013) |
