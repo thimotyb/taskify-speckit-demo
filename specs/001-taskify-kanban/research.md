@@ -39,11 +39,14 @@ phase and are not researched here.
 
 - **Decision**: Services reference other services' data by id only; no foreign keys across services.
   task-service validates that `projectId` and user ids exist by calling project-service's internal
-  endpoints (users cached for 60 s; projects checked on task creation). Failures to reach
-  project-service fail closed (HTTP 503).
+  endpoints. Checks are not cached: the acting user is verified on every request, and the project is
+  verified on every request that names one (board load and task creation). Failures to reach
+  project-service fail closed (HTTP 503), so while project-service is down no task can be changed,
+  including moving a card; the user sees a clear error and the card returns to its column.
 - **Rationale**: Constitution III forbids shared data stores and implicit trust.
 - **Alternatives considered**: replicating the user list into each service (stale-data risk and
-  duplicated seed data).
+  duplicated seed data); caching user checks for a short time (would let changes succeed during a
+  brief outage, but makes the fail-closed behavior non-deterministic and was rejected).
 
 ## R4. Keeping boards fresh without real-time updates
 

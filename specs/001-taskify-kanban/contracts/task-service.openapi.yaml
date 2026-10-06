@@ -5,6 +5,8 @@ info:
   description: >
     Owns tasks and comments. All endpoints require X-User-Id matching a seeded user (identification
     only, not authentication). Text fields are plain text and are never interpreted as markup.
+    Every operation verifies the acting user (and any project) with project-service on each request
+    and fails closed: if project-service cannot be reached the response is 503 and nothing changes.
 servers:
   - url: /api/v1
 paths:
@@ -24,6 +26,7 @@ paths:
               schema: { type: array, items: { $ref: '#/components/schemas/Task' } }
         '401': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
+        '503': { $ref: '#/components/responses/Problem' }
     post:
       operationId: createTask
       summary: Create a task in To Do (FR-007)
@@ -60,6 +63,7 @@ paths:
               schema: { $ref: '#/components/schemas/Task' }
         '401': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
+        '503': { $ref: '#/components/responses/Problem' }
     patch:
       operationId: updateTask
       summary: Edit title, description, or assignee (FR-007a, FR-008)
@@ -106,6 +110,7 @@ paths:
         '400': { $ref: '#/components/responses/Problem' }
         '401': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
+        '503': { $ref: '#/components/responses/Problem' }
   /tasks/{taskId}/comments:
     get:
       operationId: listComments
@@ -121,6 +126,7 @@ paths:
               schema: { type: array, items: { $ref: '#/components/schemas/Comment' } }
         '401': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
+        '503': { $ref: '#/components/responses/Problem' }
     post:
       operationId: addComment
       summary: Add a comment (FR-010)
@@ -141,6 +147,7 @@ paths:
         '400': { $ref: '#/components/responses/Problem' }
         '401': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
+        '503': { $ref: '#/components/responses/Problem' }
 components:
   parameters:
     ActingUser:
