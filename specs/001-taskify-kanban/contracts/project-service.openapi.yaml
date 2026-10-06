@@ -1,0 +1,164 @@
+openapi: 3.1.0
+info:
+  title: Taskify Project Service
+  version: 1.0.0
+  description: >
+    Owns users (seeded, read-only) and projects. Public endpoints require the X-User-Id header to
+    match a seeded user. X-User-Id identifies the acting user; it is not authentication.
+servers:
+  - url: /api/v1
+paths:
+  /users:
+    get:
+      operationId: listUsers
+      summary: List the five predefined users
+      parameters: [{ $ref: '#/components/parameters/ActingUser' }]
+      responses:
+        '200':
+          description: All users
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/User' } }
+        '401': { $ref: '#/components/responses/Problem' }
+  /projects:
+    get:
+      operationId: listProjects
+      summary: List all projects
+      parameters: [{ $ref: '#/components/parameters/ActingUser' }]
+      responses:
+        '200':
+          description: All projects, oldest first
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Project' } }
+        '401': { $ref: '#/components/responses/Problem' }
+    post:
+      operationId: createProject
+      summary: Create a project (FR-005)
+      parameters: [{ $ref: '#/components/parameters/ActingUser' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateProject' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Project' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '409': { $ref: '#/components/responses/Problem' }
+  /projects/{projectId}:
+    get:
+      operationId: getProject
+      summary: Get one project
+      parameters:
+        - { $ref: '#/components/parameters/ActingUser' }
+        - { $ref: '#/components/parameters/ProjectId' }
+      responses:
+        '200':
+          description: The project
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Project' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+  /internal/projects/{projectId}:
+    servers:
+      - url: /
+    get:
+      operationId: internalGetProject
+      summary: Existence check used by task-service (service token required, not routed by gateway)
+      parameters:
+        - { $ref: '#/components/parameters/ServiceToken' }
+        - { $ref: '#/components/parameters/ProjectId' }
+      responses:
+        '200':
+          description: The project
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Project' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+  /internal/users/{userId}:
+    servers:
+      - url: /
+    get:
+      operationId: internalGetUser
+      summary: Existence check used by task-service (service token required)
+      parameters:
+        - { $ref: '#/components/parameters/ServiceToken' }
+        - { name: userId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: The user
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+components:
+  parameters:
+    ActingUser:
+      name: X-User-Id
+      in: header
+      required: true
+      schema: { type: string, format: uuid }
+    ServiceToken:
+      name: X-Service-Token
+      in: header
+      required: true
+      schema: { type: string }
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+  responses:
+    Problem:
+      description: RFC 9457 problem details; never contains stack traces or internals
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+  schemas:
+    User:
+      type: object
+      required: [id, name, role]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string, maxLength: 100 }
+        role: { type: string, enum: [PRODUCT_MANAGER, ENGINEER] }
+    Project:
+      type: object
+      required: [id, name, createdBy, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string, minLength: 1, maxLength: 100 }
+        description: { type: [string, 'null'], maxLength: 1000 }
+        createdBy: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }
+    CreateProject:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 100 }
+        description: { type: string, maxLength: 1000 }
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: { type: string }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        errors:
+          type: array
+          description: Field-level validation messages (safe, non-technical)
+          items:
+            type: object
+            properties:
+              field: { type: string }
+              message: { type: string }

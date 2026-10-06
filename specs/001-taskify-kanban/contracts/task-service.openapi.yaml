@@ -1,0 +1,237 @@
+openapi: 3.1.0
+info:
+  title: Taskify Task Service
+  version: 1.0.0
+  description: >
+    Owns tasks and comments. All endpoints require X-User-Id matching a seeded user (identification
+    only, not authentication). Text fields are plain text and are never interpreted as markup.
+servers:
+  - url: /api/v1
+paths:
+  /projects/{projectId}/tasks:
+    get:
+      operationId: listTasks
+      summary: List a project's tasks for the board
+      description: Ordered by createdAt ascending within each status.
+      parameters:
+        - { $ref: '#/components/parameters/ActingUser' }
+        - { $ref: '#/components/parameters/ProjectId' }
+      responses:
+        '200':
+          description: All tasks in the project, each with its comment count
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Task' } }
+        '401': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+    post:
+      operationId: createTask
+      summary: Create a task in To Do (FR-007)
+      parameters:
+        - { $ref: '#/components/parameters/ActingUser' }
+        - { $ref: '#/components/parameters/ProjectId' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateTask' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Task' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+        '503': { $ref: '#/components/responses/Problem' }
+  /tasks/{taskId}:
+    get:
+      operationId: getTask
+      summary: Get one task
+      parameters:
+        - { $ref: '#/components/parameters/ActingUser' }
+        - { $ref: '#/components/parameters/TaskId' }
+      responses:
+        '200':
+          description: The task
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Task' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+    patch:
+      operationId: updateTask
+      summary: Edit title, description, or assignee (FR-007a, FR-008)
+      description: >
+        Only supplied fields change. assigneeId: null clears the assignee. Rejected requests leave
+        the task unchanged.
+      parameters:
+        - { $ref: '#/components/parameters/ActingUser' }
+        - { $ref: '#/components/parameters/TaskId' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateTask' }
+      responses:
+        '200':
+          description: Updated task
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Task' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+        '503': { $ref: '#/components/responses/Problem' }
+  /tasks/{taskId}/status:
+    put:
+      operationId: setTaskStatus
+      summary: Move a task to any column (FR-009)
+      description: Moving to the current status succeeds and changes nothing.
+      parameters:
+        - { $ref: '#/components/parameters/ActingUser' }
+        - { $ref: '#/components/parameters/TaskId' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SetStatus' }
+      responses:
+        '200':
+          description: Updated task
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Task' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+  /tasks/{taskId}/comments:
+    get:
+      operationId: listComments
+      summary: List comments, oldest first (FR-011)
+      parameters:
+        - { $ref: '#/components/parameters/ActingUser' }
+        - { $ref: '#/components/parameters/TaskId' }
+      responses:
+        '200':
+          description: Comments
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Comment' } }
+        '401': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+    post:
+      operationId: addComment
+      summary: Add a comment (FR-010)
+      parameters:
+        - { $ref: '#/components/parameters/ActingUser' }
+        - { $ref: '#/components/parameters/TaskId' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateComment' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Comment' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+components:
+  parameters:
+    ActingUser:
+      name: X-User-Id
+      in: header
+      required: true
+      schema: { type: string, format: uuid }
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    TaskId:
+      name: taskId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+  responses:
+    Problem:
+      description: RFC 9457 problem details; never contains stack traces or internals
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+  schemas:
+    Status:
+      type: string
+      enum: [TODO, IN_PROGRESS, IN_REVIEW, DONE]
+    Task:
+      type: object
+      required: [id, projectId, title, status, commentCount, createdBy, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        projectId: { type: string, format: uuid }
+        title: { type: string, minLength: 1, maxLength: 150 }
+        description: { type: [string, 'null'], maxLength: 2000 }
+        status: { $ref: '#/components/schemas/Status' }
+        assigneeId: { type: [string, 'null'], format: uuid }
+        commentCount: { type: integer, minimum: 0 }
+        createdBy: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        updatedBy: { type: string, format: uuid }
+    CreateTask:
+      type: object
+      additionalProperties: false
+      required: [title]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 150 }
+        description: { type: string, maxLength: 2000 }
+        assigneeId: { type: [string, 'null'], format: uuid }
+    UpdateTask:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        title: { type: string, minLength: 1, maxLength: 150 }
+        description: { type: [string, 'null'], maxLength: 2000 }
+        assigneeId: { type: [string, 'null'], format: uuid }
+    SetStatus:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status: { $ref: '#/components/schemas/Status' }
+    Comment:
+      type: object
+      required: [id, taskId, authorId, text, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        taskId: { type: string, format: uuid }
+        authorId: { type: string, format: uuid }
+        text: { type: string, minLength: 1, maxLength: 1000 }
+        createdAt: { type: string, format: date-time }
+    CreateComment:
+      type: object
+      additionalProperties: false
+      required: [text]
+      properties:
+        text: { type: string, minLength: 1, maxLength: 1000 }
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: { type: string }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field: { type: string }
+              message: { type: string }
