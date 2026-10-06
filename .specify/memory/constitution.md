@@ -1,13 +1,15 @@
 <!--
 Sync Impact Report
-- Version change: (unratified template) → 1.0.0
-- Modified principles: none (initial adoption; all placeholders replaced)
-- Added sections: Core Principles (I. Security-First, II. Validate All Inputs,
-  III. Microservices Architecture, IV. Full Documentation), Architecture & Security
-  Constraints, Development Workflow & Quality Gates, Governance
-- Removed sections: none (template sections 4 and 5 unused; the user requested 4 principles)
-- Follow-up TODOs: none. Technology stack, compliance standards and a runtime guidance
-  file are intentionally not defined; add them by amendment when decided.
+- Version change: 1.0.0 → 1.1.0
+- Modified principles: I. Security-First (authentication bullet now refers to a bounded
+  exception; Early-Phase Identification Exception added; rationale extended). Title unchanged.
+- Added sections: none (new exception paragraph inside Principle I)
+- Removed sections: none
+- Other edits: Development Workflow clarifies the exception is not a deviation.
+- Bump rationale: MINOR. Materially expanded guidance with a bounded exception; no principle
+  was removed, and all other Principle I rules are unchanged.
+- Follow-up TODOs: none in this file. Dependent artifacts to refresh: plan.md Constitution
+  Check Note 1 and the spec's Security Considerations (see analysis findings C1 and C2).
 -->
 # Taskify Constitution
 
@@ -20,10 +22,32 @@ spec, plan, and task, and take precedence over convenience, delivery speed, and 
 - Every service MUST apply least privilege, deny by default, and fail closed.
 - Secrets MUST NOT be committed to source control or written to logs.
 - Authentication and authorization MUST be enforced on every service endpoint, including
-  internal service-to-service calls.
+  internal service-to-service calls, except where the Early-Phase Identification Exception
+  below applies.
+
+**Early-Phase Identification Exception**: In early phases of implementation, user-facing
+endpoints MAY use simple identification without login (for example, choosing one of a fixed set
+of predefined users) instead of authentication, but only while ALL of these conditions hold:
+- The feature spec explicitly defers authentication, records the risk acceptance, and states
+  that identification is not a security boundary.
+- The server MUST still validate the claimed identity against the known user set on every
+  request and fail closed when it is missing or unknown; it MUST NOT trust the client.
+- Service-to-service calls MUST remain authenticated; the exception covers end-user endpoints
+  only.
+- The system MUST hold only sample or non-sensitive data and MUST NOT be exposed to untrusted
+  users or networks.
+- Identity handling MUST be concentrated in one place so real authentication can replace it
+  without changing business logic.
+- The plan MUST track the work to replace identification with authentication, and the
+  exception ends no later than the first release to real users or an untrusted network.
+
+All other requirements of this constitution, including Principle II, still apply during the
+exception. Using the exception is a defined rule, not a deviation.
 
 Rationale: Taskify handles user data and tasks; a breach or privilege escalation is costlier
-than any delay caused by building security in from the start.
+than any delay caused by building security in from the start. The bounded exception lets early
+phases validate the product without a login flow while keeping the path to real authentication
+open.
 
 ### II. Validate All User Inputs
 All user-supplied input MUST be validated before it is processed, stored, or forwarded.
@@ -82,7 +106,8 @@ service boundaries without reverse engineering.
   documentation is updated.
 - Any deviation from a principle MUST be recorded with its justification in the plan's
   complexity or exceptions section and approved by a reviewer. Deviations from Principle I
-  or II are not permitted.
+  or II are not permitted; the Early-Phase Identification Exception in Principle I is a
+  defined rule and does not count as a deviation.
 
 ## Governance
 
@@ -96,4 +121,4 @@ This constitution supersedes all other practices and guidance in the project.
 - **Compliance review**: Every spec, plan, and pull request MUST be checked against these
   principles, and the constitution MUST be reviewed at least once per quarter.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06
+**Version**: 1.1.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06
